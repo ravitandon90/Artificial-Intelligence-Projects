@@ -189,7 +189,7 @@ public class DecisionTreeClassifier implements Classifier {
 				// at this node, the plurality value over the set of examples is used
 				node.classLabel = pluralityValue (examples); 
 				double deviation = calculateDeviation (examples, attributeIndex);
-				int confidenceIndex = 8;
+				int confidenceIndex = 9;
 				// checking whether the current node is significant, root node is assumed to be significant  	
 				node.isSignificant = isAttributeSignificant (deviation, confidenceIndex) || (node == this.decisionTreeRoot);
 			}

@@ -15,7 +15,7 @@ public class Experiment1 {
 	
 	private DataSet buildTestDataSet(DataSet d) {
 		// picking 10% of the training examples as the test examples
-		this.fraction = 0.1;
+		this.fraction = 0.50;
 		int testSetSize = (int) (this.fraction * d.numTrainExs);
 		boolean[] isTest = new boolean [d.numTrainExs];
 		int trainingSetSize = d.numTrainExs - testSetSize;
@@ -97,10 +97,19 @@ public class Experiment1 {
 	Experiment1 e = new Experiment1();
 	DataSet od = new BinaryDataSet(filestem);
 	DataSet nd = e.buildTestDataSet(od);
-	Classifier c = new BaggingClassifier(nd);
-	Classifier c1 = new AdaBoostClassifier (nd);
-	System.out.println ("BaggingClassifier: Error Estimate:" +  e.getErrorEstimate (c, nd, e.testLables));
-	System.out.println ("AdaBoost: Error Estimate:" +  e.getErrorEstimate (c1, nd, e.testLables));
+	double totalImprovement  = 0.0;
+	int totalRounds = 100;
+	for (int rounds = 0; rounds < totalRounds; rounds++){
+	Classifier c = new DecisionTreeClassifier(nd, false);
+	Classifier c1 = new DecisionTreeClassifier (nd, true);
+	double e1 = e.getErrorEstimate (c, nd, e.testLables);
+	double e2 = e.getErrorEstimate (c1, nd, e.testLables);
+	double improvement = (-e2+e1)/(e1) *  100;
+	totalImprovement +=  improvement;
+	}
+	System.out.println (totalImprovement / totalRounds);
+	//System.out.println ("DecisionTreeClassifier, No Pruning: Error Estimate:" +  e1);
+	//System.out.println ("DecisionTreeClassifier, With Pruning: Error Estimate:" +  e2);
     }
     
     private void checkLabels (DataSet d, DataSet nd){

@@ -5,7 +5,7 @@ import java.util.Random;
 
 public class BaggingClassifier implements Classifier {
 	
-	private int bootStrapRounds = 20;
+	public int bootStrapRounds = 20;
 	private int bootStrapSize;
 	private Classifier[] classifierSet ;
 	private String description = "This algorithm is the implementation "
@@ -18,6 +18,26 @@ public class BaggingClassifier implements Classifier {
 	 * @param dataSet
 	 */
 	public BaggingClassifier (DataSet dataSet){
+		// setting the bootstrap size to the number of the training examples 
+		this.bootStrapSize = dataSet.numTrainExs;
+		// Array of the classifier, used for getting a majority vote for classification
+		this.classifierSet = new Classifier [this.bootStrapRounds]; 
+		// iterating over the rounds to build the bootstrap dataSet and get a classifier on it
+		for (int currentRound = 0; currentRound < this.bootStrapRounds; currentRound++){
+			DataSet bootStrapDataSet = buildBootStrapDataSet (dataSet);	
+			//CrossValidationClassifier c = new CrossValidationClassifier (bootStrapDataSet);	
+			//classifierSet[currentRound] = c.bestDecisionTree;
+			classifierSet[currentRound] = new CrossValidationClassifier (bootStrapDataSet);
+		}
+	}
+	
+	/** This is the constructor for the bagging classifier class.
+	 *  This constructs a bootstrap sample 
+	 * 
+	 * @param dataSet
+	 */
+	public BaggingClassifier (DataSet dataSet, int rounds){
+		this.bootStrapRounds = rounds;
 		// setting the bootstrap size to the number of the training examples 
 		this.bootStrapSize = dataSet.numTrainExs;
 		// Array of the classifier, used for getting a majority vote for classification

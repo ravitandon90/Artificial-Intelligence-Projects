@@ -5,7 +5,7 @@ import java.io.IOException;
 public class AdaBoostClassifier implements Classifier {
 
 	private double[] weights;
-	private int numberRounds;
+	public int numberRounds;
 	private boolean[][] classifiedCorrectly;
 	private int[] hypothesis;
 	private double[] alpha;
@@ -14,11 +14,48 @@ public class AdaBoostClassifier implements Classifier {
 	private String description = "Implementation of Adaboost, "
 			+ "using decision stump as weak learning algorithm.";
 		
+	/** This is the constructor method of the AdaBoost classification algorithm. 
+	 *  It runs decision stumps to get a set of classification over all the attributes. 
+	 *  It runs for "numberRounds" classification rounds. The initial weights are assigned as (1/number of examples).
+	 *  Each round calculates the error for each classifier, selects the classifier with the minimum weighted error.
+	 *  The error is then calculated for the selected decision stump. 
+	 *  It is then used to update the subsequent weights of each of the examples for the next round.  
+	 * 
+	 * @param dataSet
+	 */
 	public AdaBoostClassifier (DataSet dataSet){
-		this.numberRounds = 50;
+		this.numberRounds = 200;
 		double error;
 		this.dSC = new DecisionStumpClassifier[dataSet.numAttrs];
 		this.weights = new double[dataSet.numTrainExs];
+		// Initializing the weights of all the training examples
+		initWeights(dataSet.numTrainExs);
+		this.classifiedCorrectly = new boolean[dataSet.numAttrs][dataSet.numTrainExs];
+		this.alpha = new double[this.numberRounds];
+		this.hypothesis = new int[this.numberRounds];
+		for (int attributeIndex = 0; attributeIndex < dataSet.numAttrs; attributeIndex++){
+			//System.out.println(attributeIndex);
+			this.dSC[attributeIndex] = new DecisionStumpClassifier (dataSet, attributeIndex); 
+			
+			for (int sampleIndex = 0; sampleIndex < dataSet.numTrainExs; sampleIndex++){
+				classifiedCorrectly[attributeIndex][sampleIndex] = 
+						(this.dSC[attributeIndex].predict(dataSet.trainEx[sampleIndex]) == dataSet.trainLabel[sampleIndex]);
+			}
+		}
+		for (int currentRound = 0; currentRound < this.numberRounds; currentRound++){
+			error = getMinimumWeightedError(dataSet.numTrainExs, dataSet.numAttrs, currentRound);
+			this.alpha[currentRound] = 0.5 * Math.log((1 - error) / (error));
+			updateWeights (dataSet.numTrainExs, error, 
+					this.classifiedCorrectly[this.hypothesis[currentRound]], this.alpha[currentRound]);
+		}
+	}
+	
+	public AdaBoostClassifier (DataSet dataSet, int numberRounds){
+		this.numberRounds = numberRounds;
+		double error;
+		this.dSC = new DecisionStumpClassifier[dataSet.numAttrs];
+		this.weights = new double[dataSet.numTrainExs];
+		// Initializing the weights of all the training examples
 		initWeights(dataSet.numTrainExs);
 		this.classifiedCorrectly = new boolean[dataSet.numAttrs][dataSet.numTrainExs];
 		this.alpha = new double[this.numberRounds];
@@ -117,8 +154,8 @@ public class AdaBoostClassifier implements Classifier {
 
 	String filestem = argv[0];
 
+	//DataSet d = new BinaryDataSet(filestem);
 	DataSet d = new DataSet(filestem);
-
 	Classifier c = new AdaBoostClassifier(d);
 	
 	d.printTestPredictions(c, filestem);

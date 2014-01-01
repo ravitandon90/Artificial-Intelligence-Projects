@@ -33,6 +33,26 @@ public class CrossValidationClassifier implements Classifier {
 		}
 	}
 	
+	/** The constructor for the cross validation class.
+	 *  The class builds the constructs the best decision tree based on the 5-fold validation principle. 
+	 *  
+	 * @param dataSet - Original DataSet
+	 */
+	public CrossValidationClassifier (DataSet dataSet, int fold){
+		this.folding = fold;
+		this.foldSize = dataSet.numTrainExs / this.folding;
+		double minClassificationError = Double.POSITIVE_INFINITY, classificationError;
+		for (int currentFold = 0; currentFold < this.folding; currentFold++){
+			DataSet newDataSet = buildDataSet (dataSet, currentFold);
+			Classifier classifier = new DecisionTreeClassifier (newDataSet, true);
+			classificationError = getErrorEstimate (classifier, dataSet, currentFold);
+			if (classificationError < minClassificationError){
+				minClassificationError = classificationError;
+				this.bestClassifier = classifier;
+			}
+		}
+	}
+	
 	/** This function gets the error estimate for the current constructed decision tree.
 	 * 
 	 * @param decisionTree

@@ -46,7 +46,7 @@ public class DecisionStumpClassifier implements Classifier {
 	private String author = "Ravi Tandon";
 	// Description of the classifier
 	private String description = "An implementation of the "
-			+ "decision tree learninng algorithm.";
+			+ "decision stumps as a weak learninng algorithm.";
 	
 	// Root of the decision tree that performs the classification
 	public DecisionTree decisionTreeRoot;
@@ -123,7 +123,7 @@ public class DecisionStumpClassifier implements Classifier {
 	 * @param parent_examples - training labels of the parent examples
 	 */
 	private void buildDecisionTree (Example[] examples, int attributeIndex, DecisionTree node){
-			// setting attribute in the current node
+		// setting attribute in the current node
 			node.attribute = attributeIndex;
 			// initializing the right and left children of the current node
 			node.decisionTreeLeft = new DecisionTree ();
